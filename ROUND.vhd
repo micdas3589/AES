@@ -43,15 +43,13 @@ BEGIN
 	BEGIN
 		IF INIT = '1' THEN
 			COUNTER	<= (OTHERS => '0');
+			STATE		<= (OTHERS => '0');
 		ELSIF CLK = '1' AND CLK'EVENT THEN
 			IF ROUND_NR = X"0" THEN
-				STATE_OUT	<= STATE_IN XOR ROUND_KEY;
+				STATE	<= STATE_IN XOR ROUND_KEY;
 			END IF;
 			IF ROUND_NR /= X"0" THEN
 				IF COUNTER = X"0" THEN
-					STATE	<= STATE_IN;
-				END IF;
-				IF COUNTER = X"1" THEN
 					STATE(127 downto 120) <= SBOX(CONV_INTEGER(STATE(127 downto 124)))(CONV_INTEGER(STATE(123 downto 120) & "000") to CONV_INTEGER(STATE(123 downto 120) & "000")+7);
 					STATE(119 downto 112) <= SBOX(CONV_INTEGER(STATE(119 downto 116)))(CONV_INTEGER(STATE(115 downto 112) & "000") to CONV_INTEGER(STATE(115 downto 112) & "000")+7);
 					STATE(111 downto 104) <= SBOX(CONV_INTEGER(STATE(111 downto 108)))(CONV_INTEGER(STATE(107 downto 104) & "000") to CONV_INTEGER(STATE(107 downto 104) & "000")+7);
@@ -69,7 +67,7 @@ BEGIN
 					STATE(15  downto   8) <= SBOX(CONV_INTEGER(STATE(15  downto  12)))(CONV_INTEGER(STATE(11  downto   8) & "000") to CONV_INTEGER(STATE(11  downto   8) & "000")+7);
 					STATE(7   downto   0) <= SBOX(CONV_INTEGER(STATE(7   downto   4)))(CONV_INTEGER(STATE(3   downto   0) & "000") to CONV_INTEGER(STATE(3   downto   0) & "000")+7);
 				END IF;
-				IF COUNTER = X"2" THEN
+				IF COUNTER = X"1" THEN
 					STATE	<= STATE(127 downto 120) &
 								STATE(87  downto  80) &
 								STATE(47  downto  40) &
@@ -117,16 +115,21 @@ BEGIN
 														STATE(111 downto 104) XOR (STATE(102 downto 96) & '0');
 					END IF;
 					
-					STATE(127 downto 32)	<= STATE(95 downto 0);
+					STATE(127 downto 32) <= STATE(95 downto 0);
 				END IF;
 				IF COUNTER = X"7" THEN
-					STATE_OUT	<= STATE XOR ROUND_KEY;
+					STATE		<= STATE XOR ROUND_KEY;
 				END IF;
 			END IF;
 			
 			IF RUN_ROUND = '1' THEN
 				COUNTER	<= COUNTER + 1;
+				IF COUNTER = X"7" THEN
+					COUNTER	<= (OTHERS => '0');
+				END IF;
 			END IF;
 		END IF;
 	END PROCESS;
+	
+	STATE_OUT	<= STATE WHEN ROUND_NR = X"A";
 END ARCHITECTURE;
