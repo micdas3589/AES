@@ -7,8 +7,7 @@ ENTITY ROUND IS
 	PORT (
 		CLK			:IN STD_LOGIC;
 		INIT			:IN STD_LOGIC;
-		RUN_ROUND	:IN STD_LOGIC;
-		ROUND_NR		:IN STD_LOGIC_VECTOR(3 downto 0);
+		RUN			:IN STD_LOGIC;
 		STATE_IN		:IN STD_LOGIC_VECTOR(127 downto 0);
 		ROUND_KEY	:IN STD_LOGIC_VECTOR(127 downto 0);
 		STATE_OUT	:OUT STD_LOGIC_VECTOR(127 downto 0)
@@ -36,19 +35,29 @@ ARCHITECTURE ARCH_ROUND OF ROUND IS
 		,X"e1f8981169d98e949b1e87e9ce5528df"
 		,X"8ca1890dbfe6426841992d0fb054bb16"
 	);
-	SIGNAL COUNTER :STD_LOGIC_VECTOR(7 downto 0) := (OTHERS => '0');
-	SIGNAL STATE	:STD_LOGIC_VECTOR(127 downto 0) := (OTHERS => '0');
+	SIGNAL COUNTER 	:STD_LOGIC_VECTOR(3 downto 0) := (OTHERS => '0');
+	SIGNAL STATE		:STD_LOGIC_VECTOR(127 downto 0) := (OTHERS => '0');
+	SIGNAL ROUND_NR	: STD_LOGIC_VECTOR(3 downto 0) := (OTHERS => '0');
 BEGIN
 	PROCESS(CLK, INIT)
 	BEGIN
 		IF INIT = '1' THEN
 			COUNTER	<= (OTHERS => '0');
 			STATE		<= (OTHERS => '0');
+			ROUND_NR	<= (OTHERS => '0');
 		ELSIF CLK = '1' AND CLK'EVENT THEN
-			IF ROUND_NR = X"0" THEN
-				STATE	<= STATE_IN XOR ROUND_KEY;
+			IF RUN = '1' THEN
+				COUNTER	<= COUNTER + 1;
+			ELSE
+				COUNTER	<= X"F";
 			END IF;
-			IF ROUND_NR /= X"0" THEN
+		
+			IF ROUND_NR = X"0" AND COUNTER = X"1" THEN
+				STATE	<= STATE_IN XOR ROUND_KEY;
+				ROUND_NR	<= ROUND_NR + 1;
+				COUNTER	<= (OTHERS => '0');
+			END IF;
+			IF ROUND_NR > X"0" AND ROUND_NR < X"B" THEN
 				IF COUNTER = X"0" THEN
 					STATE(127 downto 120) <= SBOX(CONV_INTEGER(STATE(127 downto 124)))(CONV_INTEGER(STATE(123 downto 120) & "000") to CONV_INTEGER(STATE(123 downto 120) & "000")+7);
 					STATE(119 downto 112) <= SBOX(CONV_INTEGER(STATE(119 downto 116)))(CONV_INTEGER(STATE(115 downto 112) & "000") to CONV_INTEGER(STATE(115 downto 112) & "000")+7);
@@ -85,51 +94,135 @@ BEGIN
 								STATE(79  downto  72) &
 								STATE(39  downto  32);
 				END IF;
-				IF COUNTER > X"2" AND COUNTER < X"7" AND ROUND_NR /= X"A" THEN
+				IF COUNTER = X"2" AND ROUND_NR /= X"A" THEN
+					-- 127-96
 					IF (STATE(127) XOR STATE(119)) = '1' THEN
-						STATE(31 downto 24)	<= (STATE(126 downto 120) & '0') XOR (STATE(118 downto 112) & '0') XOR
+						STATE(127 downto 120)	<= (STATE(126 downto 120) & '0') XOR (STATE(118 downto 112) & '0') XOR
 														STATE(119 downto 112) XOR STATE(111 downto 104) XOR STATE(103 downto 96) XOR X"1B";
 					ELSE
-						STATE(31 downto 24)	<= (STATE(126 downto 120) & '0') XOR (STATE(118 downto 112) & '0') XOR
+						STATE(127 downto 120)	<= (STATE(126 downto 120) & '0') XOR (STATE(118 downto 112) & '0') XOR
 														STATE(119 downto 112) XOR STATE(111 downto 104) XOR STATE(103 downto 96);
 					END IF;
 					IF (STATE(119) XOR STATE(111)) = '1' THEN
-						STATE(23 downto 16)	<= STATE(127 downto 120) XOR (STATE(118 downto 112) & '0') XOR (STATE(110 downto 104) & '0') XOR
+						STATE(119 downto 112)	<= STATE(127 downto 120) XOR (STATE(118 downto 112) & '0') XOR (STATE(110 downto 104) & '0') XOR
 														STATE(111 downto 104) XOR STATE(103 downto 96) XOR X"1B";
 					ELSE
-						STATE(23 downto 16)	<= STATE(127 downto 120) XOR (STATE(118 downto 112) & '0') XOR (STATE(110 downto 104) & '0') XOR
+						STATE(119 downto 112)	<= STATE(127 downto 120) XOR (STATE(118 downto 112) & '0') XOR (STATE(110 downto 104) & '0') XOR
 														STATE(111 downto 104) XOR STATE(103 downto 96);
 					END IF;
 					IF (STATE(111) XOR STATE(103)) = '1' THEN
-						STATE(15 downto 8)	<= STATE(127 downto 120) XOR STATE(119 downto 112) XOR (STATE(110 downto 104) & '0') XOR
+						STATE(111 downto 104)	<= STATE(127 downto 120) XOR STATE(119 downto 112) XOR (STATE(110 downto 104) & '0') XOR
 														(STATE(102 downto 96) & '0') XOR STATE(103 downto 96) XOR X"1B";
 					ELSE
-						STATE(15 downto 8)	<= STATE(127 downto 120) XOR STATE(119 downto 112) XOR (STATE(110 downto 104) & '0') XOR
+						STATE(111 downto 104)	<= STATE(127 downto 120) XOR STATE(119 downto 112) XOR (STATE(110 downto 104) & '0') XOR
 														(STATE(102 downto 96) & '0') XOR STATE(103 downto 96);
 					END IF;
 					IF (STATE(127) XOR STATE(103)) = '1' THEN
-						STATE(7 downto 0)		<= (STATE(126 downto 120) & '0') XOR STATE(127 downto 120) XOR STATE(119 downto 112) XOR
+						STATE(103 downto 96)		<= (STATE(126 downto 120) & '0') XOR STATE(127 downto 120) XOR STATE(119 downto 112) XOR
 														STATE(111 downto 104) XOR (STATE(102 downto 96) & '0') XOR X"1B";
 					ELSE
-						STATE(7 downto 0)		<= (STATE(126 downto 120) & '0') XOR STATE(127 downto 120) XOR STATE(119 downto 112) XOR
+						STATE(103 downto 96)		<= (STATE(126 downto 120) & '0') XOR STATE(127 downto 120) XOR STATE(119 downto 112) XOR
 														STATE(111 downto 104) XOR (STATE(102 downto 96) & '0');
 					END IF;
 					
-					STATE(127 downto 32) <= STATE(95 downto 0);
+					-- 95-64
+					IF (STATE(95) XOR STATE(87)) = '1' THEN
+						STATE(95 downto 88)	<= (STATE(94 downto 88) & '0') XOR (STATE(86 downto 80) & '0') XOR
+														STATE(87 downto 80) XOR STATE(79 downto 72) XOR STATE(71 downto 64) XOR X"1B";
+					ELSE
+						STATE(95 downto 88)	<= (STATE(94 downto 88) & '0') XOR (STATE(86 downto 80) & '0') XOR
+														STATE(87 downto 80) XOR STATE(79 downto 72) XOR STATE(71 downto 64);
+					END IF;
+					IF (STATE(87) XOR STATE(79)) = '1' THEN
+						STATE(87 downto 80)	<= STATE(95 downto 88) XOR (STATE(86 downto 80) & '0') XOR (STATE(78 downto 72) & '0') XOR
+														STATE(79 downto 72) XOR STATE(71 downto 64) XOR X"1B";
+					ELSE
+						STATE(87 downto 80)	<= STATE(95 downto 88) XOR (STATE(86 downto 80) & '0') XOR (STATE(78 downto 72) & '0') XOR
+														STATE(79 downto 72) XOR STATE(71 downto 64);
+					END IF;
+					IF (STATE(79) XOR STATE(71)) = '1' THEN
+						STATE(79 downto 72)	<= STATE(95 downto 88) XOR STATE(87 downto 80) XOR (STATE(78 downto 72) & '0') XOR
+														(STATE(70 downto 64) & '0') XOR STATE(71 downto 64) XOR X"1B";
+					ELSE
+						STATE(79 downto 72)	<= STATE(95 downto 88) XOR STATE(87 downto 80) XOR (STATE(78 downto 72) & '0') XOR
+														(STATE(70 downto 64) & '0') XOR STATE(71 downto 64);
+					END IF;
+					IF (STATE(95) XOR STATE(71)) = '1' THEN
+						STATE(71 downto 64)		<= (STATE(94 downto 88) & '0') XOR STATE(95 downto 88) XOR STATE(87 downto 80) XOR
+														STATE(79 downto 72) XOR (STATE(70 downto 64) & '0') XOR X"1B";
+					ELSE
+						STATE(71 downto 64)		<= (STATE(94 downto 88) & '0') XOR STATE(95 downto 88) XOR STATE(87 downto 80) XOR
+														STATE(79 downto 72) XOR (STATE(70 downto 64) & '0');
+					END IF;
+					
+					-- 63-32
+					IF (STATE(63) XOR STATE(55)) = '1' THEN
+						STATE(63 downto 56)	<= (STATE(62 downto 56) & '0') XOR (STATE(54 downto 48) & '0') XOR
+														STATE(55 downto 48) XOR STATE(47 downto 40) XOR STATE(39 downto 32) XOR X"1B";
+					ELSE
+						STATE(63 downto 56)	<= (STATE(62 downto 56) & '0') XOR (STATE(54 downto 48) & '0') XOR
+														STATE(55 downto 48) XOR STATE(47 downto 40) XOR STATE(39 downto 32);
+					END IF;
+					IF (STATE(55) XOR STATE(47)) = '1' THEN
+						STATE(55 downto 48)	<= STATE(63 downto 56) XOR (STATE(54 downto 48) & '0') XOR (STATE(46 downto 40) & '0') XOR
+														STATE(47 downto 40) XOR STATE(39 downto 32) XOR X"1B";
+					ELSE
+						STATE(55 downto 48)	<= STATE(63 downto 56) XOR (STATE(54 downto 48) & '0') XOR (STATE(46 downto 40) & '0') XOR
+														STATE(47 downto 40) XOR STATE(39 downto 32);
+					END IF;
+					IF (STATE(47) XOR STATE(39)) = '1' THEN
+						STATE(47 downto 40)	<= STATE(63 downto 56) XOR STATE(55 downto 48) XOR (STATE(46 downto 40) & '0') XOR
+														(STATE(38 downto 32) & '0') XOR STATE(39 downto 32) XOR X"1B";
+					ELSE
+						STATE(47 downto 40)	<= STATE(63 downto 56) XOR STATE(55 downto 48) XOR (STATE(46 downto 40) & '0') XOR
+														(STATE(38 downto 32) & '0') XOR STATE(39 downto 32);
+					END IF;
+					IF (STATE(63) XOR STATE(39)) = '1' THEN
+						STATE(39 downto 32)		<= (STATE(62 downto 56) & '0') XOR STATE(63 downto 56) XOR STATE(55 downto 48) XOR
+														STATE(47 downto 40) XOR (STATE(38 downto 32) & '0') XOR X"1B";
+					ELSE
+						STATE(39 downto 32)		<= (STATE(62 downto 56) & '0') XOR STATE(63 downto 56) XOR STATE(55 downto 48) XOR
+														STATE(47 downto 40) XOR (STATE(38 downto 32) & '0');
+					END IF;
+					
+					-- 31-0
+					IF (STATE(31) XOR STATE(23)) = '1' THEN
+						STATE(31 downto 24)	<= (STATE(30 downto 24) & '0') XOR (STATE(22 downto 16) & '0') XOR
+														STATE(23 downto 16) XOR STATE(15 downto 8) XOR STATE(7 downto 0) XOR X"1B";
+					ELSE
+						STATE(31 downto 24)	<= (STATE(30 downto 24) & '0') XOR (STATE(22 downto 16) & '0') XOR
+														STATE(23 downto 16) XOR STATE(15 downto 8) XOR STATE(7 downto 0);
+					END IF;
+					IF (STATE(23) XOR STATE(15)) = '1' THEN
+						STATE(23 downto 16)	<= STATE(31 downto 24) XOR (STATE(22 downto 16) & '0') XOR (STATE(14 downto 8) & '0') XOR
+														STATE(15 downto 8) XOR STATE(7 downto 0) XOR X"1B";
+					ELSE
+						STATE(23 downto 16)	<= STATE(31 downto 24) XOR (STATE(22 downto 16) & '0') XOR (STATE(14 downto 8) & '0') XOR
+														STATE(15 downto 8) XOR STATE(7 downto 0);
+					END IF;
+					IF (STATE(15) XOR STATE(7)) = '1' THEN
+						STATE(15 downto 8)	<= STATE(31 downto 24) XOR STATE(23 downto 16) XOR (STATE(14 downto 8) & '0') XOR
+														(STATE(6 downto 0) & '0') XOR STATE(7 downto 0) XOR X"1B";
+					ELSE
+						STATE(15 downto 8)	<= STATE(31 downto 24) XOR STATE(23 downto 16) XOR (STATE(14 downto 8) & '0') XOR
+														(STATE(6 downto 0) & '0') XOR STATE(7 downto 0);
+					END IF;
+					IF (STATE(31) XOR STATE(7)) = '1' THEN
+						STATE(7 downto 0)		<= (STATE(30 downto 24) & '0') XOR STATE(31 downto 24) XOR STATE(23 downto 16) XOR
+														STATE(15 downto 8) XOR (STATE(6 downto 0) & '0') XOR X"1B";
+					ELSE
+						STATE(7 downto 0)		<= (STATE(30 downto 24) & '0') XOR STATE(31 downto 24) XOR STATE(23 downto 16) XOR
+														STATE(15 downto 8) XOR (STATE(6 downto 0) & '0');
+					END IF;
 				END IF;
-				IF COUNTER = X"7" THEN
+				IF COUNTER = X"3" THEN
 					STATE		<= STATE XOR ROUND_KEY;
-				END IF;
-			END IF;
-			
-			IF RUN_ROUND = '1' THEN
-				COUNTER	<= COUNTER + 1;
-				IF COUNTER = X"7" THEN
 					COUNTER	<= (OTHERS => '0');
+					ROUND_NR	<= ROUND_NR + 1;
 				END IF;
 			END IF;
 		END IF;
 	END PROCESS;
 	
-	STATE_OUT	<= STATE WHEN ROUND_NR = X"A";
+	STATE_OUT	<= STATE;
 END ARCHITECTURE;
