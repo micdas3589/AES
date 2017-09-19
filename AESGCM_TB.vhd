@@ -38,14 +38,14 @@ BEGIN
 	PROCESS
 	BEGIN 
 		INIT <= '1'; RD <= '0'; WR <= '0'; ADDR <= X"00000000"; DIN <= X"00000000"; wait for CLKp;
-		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000000"; DIN <= X"00010203"; wait for CLKp;
-		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000001"; DIN <= X"04050607"; wait for CLKp;
-		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000002"; DIN <= X"08090a0b"; wait for CLKp;
-		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000003"; DIN <= X"0c0d0e0f"; wait for CLKp;
-		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000004"; DIN <= X"00112233"; wait for CLKp;
-		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000005"; DIN <= X"44556677"; wait for CLKp;
-		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000006"; DIN <= X"8899aabb"; wait for CLKp;
-		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000007"; DIN <= X"ccddeeff"; wait for CLKp;
+		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000000"; DIN <= X"00112233"; wait for CLKp;
+		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000001"; DIN <= X"44556677"; wait for CLKp;
+		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000002"; DIN <= X"8899AABB"; wait for CLKp;
+		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000003"; DIN <= X"CCDDEEFF"; wait for CLKp;
+		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000004"; DIN <= X"00000000"; wait for CLKp;
+		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000005"; DIN <= X"00000000"; wait for CLKp;
+		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000006"; DIN <= X"00000000"; wait for CLKp;
+		INIT <= '0'; RD <= '0'; WR <= '1'; ADDR <= X"00000007"; DIN <= X"00000000"; wait for CLKp;
 		INIT <= '0'; RD <= '0'; WR <= '0'; ADDR <= X"00000000"; DIN <= X"00000000"; wait for 45*CLKp;
 		INIT <= '0'; RD <= '1'; WR <= '0'; ADDR <= X"00000000"; DIN <= X"00000000"; wait for CLKp;
 		INIT <= '0'; RD <= '1'; WR <= '0'; ADDR <= X"00000001"; DIN <= X"00000000"; wait for CLKp;

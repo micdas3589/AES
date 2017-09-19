@@ -133,7 +133,7 @@ agreement for further details.
 	)
 )
 (symbol
-	(rect 504 -8 752 136)
+	(rect 872 -8 1120 136)
 	(text "KEY_SCHEDULE" (rect 5 0 93 12)(font "Arial" ))
 	(text "KEY_SCHEDULE" (rect 8 128 96 140)(font "Arial" ))
 	(port
@@ -374,16 +374,9 @@ agreement for further details.
 	(port
 		(pt 208 48)
 		(output)
-		(text "LOAD_KEY" (rect 0 0 57 12)(font "Arial" ))
-		(text "LOAD_KEY" (rect 139 43 187 55)(font "Arial" ))
-		(line (pt 208 48)(pt 192 48))
-	)
-	(port
-		(pt 208 64)
-		(output)
 		(text "RUN" (rect 0 0 24 12)(font "Arial" ))
-		(text "RUN" (rect 167 59 187 71)(font "Arial" ))
-		(line (pt 208 64)(pt 192 64))
+		(text "RUN" (rect 167 43 187 55)(font "Arial" ))
+		(line (pt 208 48)(pt 192 48))
 	)
 	(drawing
 		(rectangle (rect 16 16 192 96))
@@ -446,10 +439,41 @@ agreement for further details.
 		(rectangle (rect 16 16 192 128))
 	)
 )
-(connector
-	(pt 288 -8)
-	(pt 400 -8)
-	(bus)
+(symbol
+	(rect 432 112 608 224)
+	(text "ROUND_CTRL" (rect 5 0 80 12)(font "Arial" ))
+	(text "inst" (rect 8 96 25 108)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "CLK" (rect 0 0 21 12)(font "Arial" ))
+		(text "CLK" (rect 21 27 42 39)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "INIT" (rect 0 0 21 12)(font "Arial" ))
+		(text "INIT" (rect 21 43 42 55)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "RUN" (rect 0 0 24 12)(font "Arial" ))
+		(text "RUN" (rect 21 59 45 71)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64))
+	)
+	(port
+		(pt 176 32)
+		(output)
+		(text "LOAD_KEY" (rect 0 0 57 12)(font "Arial" ))
+		(text "LOAD_KEY" (rect 107 27 155 39)(font "Arial" ))
+		(line (pt 176 32)(pt 160 32))
+	)
+	(drawing
+		(rectangle (rect 16 16 160 96))
+	)
 )
 (connector
 	(text "CLK" (rect 29 144 50 156)(font "Arial" ))
@@ -504,16 +528,6 @@ agreement for further details.
 	(pt 32 376)
 	(pt 80 376)
 	(bus)
-)
-(connector
-	(text "CLK" (rect 476 8 497 20)(font "Arial" ))
-	(pt 504 24)
-	(pt 480 24)
-)
-(connector
-	(text "INIT" (rect 474 32 495 44)(font "Arial" ))
-	(pt 504 40)
-	(pt 480 40)
 )
 (connector
 	(text "WR" (rect 29 344 47 356)(font "Arial" ))
@@ -642,38 +656,68 @@ agreement for further details.
 	(bus)
 )
 (connector
-	(text "LOAD_KEY" (rect 306 160 363 172)(font "Arial" ))
+	(text "ROUND_KEY[127..0]" (rect 1138 8 1245 20)(font "Arial" ))
+	(pt 1120 24)
+	(pt 1160 24)
+	(bus)
+)
+(connector
+	(text "CLK" (rect 844 8 865 20)(font "Arial" ))
+	(pt 848 24)
+	(pt 872 24)
+)
+(connector
+	(text "INIT" (rect 842 32 863 44)(font "Arial" ))
+	(pt 848 40)
+	(pt 872 40)
+)
+(connector
+	(text "RUN" (rect 844 48 868 60)(font "Arial" ))
+	(pt 848 56)
+	(pt 872 56)
+)
+(connector
+	(text "LOAD_KEY" (rect 817 64 874 76)(font "Arial" ))
+	(pt 848 72)
+	(pt 872 72)
+)
+(connector
+	(pt 288 -8)
+	(pt 584 -8)
+	(bus)
+)
+(connector
+	(pt 584 -8)
+	(pt 584 88)
+	(bus)
+)
+(connector
+	(pt 872 88)
+	(pt 584 88)
+	(bus)
+)
+(connector
+	(text "RUN" (rect 306 160 330 172)(font "Arial" ))
 	(pt 288 176)
 	(pt 352 176)
 )
 (connector
-	(text "RUN" (rect 303 176 327 188)(font "Arial" ))
-	(pt 288 192)
-	(pt 352 192)
+	(text "CLK" (rect 413 128 434 140)(font "Arial" ))
+	(pt 432 144)
+	(pt 392 144)
 )
 (connector
-	(text "LOAD_KEY" (rect 449 64 506 76)(font "Arial" ))
-	(pt 504 72)
-	(pt 480 72)
+	(text "INIT" (rect 419 144 440 156)(font "Arial" ))
+	(pt 432 160)
+	(pt 392 160)
 )
 (connector
-	(pt 400 -8)
-	(pt 400 88)
-	(bus)
+	(text "RUN" (rect 411 160 435 172)(font "Arial" ))
+	(pt 392 176)
+	(pt 432 176)
 )
 (connector
-	(pt 504 88)
-	(pt 400 88)
-	(bus)
-)
-(connector
-	(text "RUN" (rect 476 48 500 60)(font "Arial" ))
-	(pt 504 56)
-	(pt 480 56)
-)
-(connector
-	(text "ROUND_KEY[127..0]" (rect 770 8 877 20)(font "Arial" ))
-	(pt 752 24)
-	(pt 792 24)
-	(bus)
+	(text "LOAD_KEY" (rect 616 128 673 140)(font "Arial" ))
+	(pt 608 144)
+	(pt 664 144)
 )
